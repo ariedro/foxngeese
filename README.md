@@ -9,5 +9,5 @@ make
 To run:
 
 ```bash
-./zorro
+./foxngeese
 ```
