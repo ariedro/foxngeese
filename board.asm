@@ -21,12 +21,23 @@ printBoard:
   call  strcpy
   add   rsp,8
  
-  ; pos fox comes in r8
+  mov   rsi,0
+  initloop:
   mov   rax,0
   mov   rbx,0
+
+  ; pos fox comes in r8
   mov   al,[r8]
   mov   bl,[r8 + 1]
+
+  cmp   rsi,0
+  jz    calculatePos
+
+  ; pos goose comes in r9
+  mov   al,[r9 + ((rsi - 1) * 2)]
+  mov   bl,[r9 + ((rsi - 1) * 2) + 1]
  
+  calculatePos:
   sub   rbx,1
   cmp   rbx,2
   jl    upperSector
@@ -52,7 +63,19 @@ printBoard:
   add   rcx,rax
   add   rcx,rbx
 
-  mov   byte[screen + rcx],88
+  mov   rax,0
+  mov   al,79 ; O
+
+  cmp   rsi,0
+  jnz   insertPiece
+  mov   al,88 ; X
+
+  insertPiece:
+  mov   byte[screen + rcx],al
+
+  inc   rsi 
+  cmp   rsi,17
+  jle   initloop
 
   print:
   sub   rsp,8
