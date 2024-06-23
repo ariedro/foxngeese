@@ -67,8 +67,16 @@ printBoard:
   mov   al,79 ; O
 
   cmp   rsi,0
-  jnz   insertPiece
+  jnz   insertSelect
   mov   al,88 ; X
+
+  insertSelect:
+  cmp   r13,1
+  jne   insertPiece
+  cmp   rsi,r12
+  jne   insertPiece
+  mov   al,83 ; S
+
 
   insertPiece:
   mov   byte[screen + rcx],al
