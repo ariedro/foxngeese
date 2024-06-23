@@ -246,8 +246,8 @@ pos_goose_equal:
   add     eax, ecx             ; sum x
   add     ebx, edx             ; sum y
 
-  mov     [r8], eax             ; save new posFox x
-  mov     [r8+1], ebx           ; save new posFox y
+  mov     [r8], al             ; save new posFox x
+  mov     [r8+1], bl           ; save new posFox y
 
   mov     r11, 1
   mov     [result], r11
