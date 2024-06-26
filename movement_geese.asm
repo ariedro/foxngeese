@@ -1,4 +1,5 @@
 global processMovementGoose
+extern checkCollisions
 extern puts
 extern gets
 
@@ -9,7 +10,7 @@ extern gets
 %endmacro
 %macro mGets 0
   sub     rsp,8
-  call    gets  
+  call    gets
   add     rsp,8
 %endmacro
 
@@ -19,23 +20,23 @@ section .data
   letterA           db "a", 0
   letterS           db "s", 0
   letterD           db "d", 0
-  selectingGoose    db 1
-  posBoard          db  3,1,  4,1,  5,1,  3,2,  4,2,  5,2,  1,3,  2,3,  3,3,  4,3,  5,3,  6,3,  7,3,  1,4,  2,4,  3,4,  4,4,  5,4,  6,4,  7,4,  1,5,  2,5,  3,5,  4,5,  5,5,  6,5,  7,5, 3,6,  4,6,  5,6, 3,7,  4,7,  5,7
+  posWalls          db 2,1, 6,1, 2,2, 6,2, 1,2, 7,2, 1,6, 2,6, 6,6, 7,6, 2,7, 6,7
 
 section .bss
-  posOriginalGoose  resb 2
+  newPos            resb 2
   keyboardInput     resb 500
 
 section .text
 processMovementGoose:
   ; input:
-  ; r12 -> posGeese
+  ; r12 -> posGoose
+  ; r13 -> posGeese
 
   ; parse param
   mov     al, byte [r12]
-  mov     [posOriginalGoose], al
+  mov     [newPos], al
   mov     al, byte [r12 + 1]
-  mov     [posOriginalGoose + 1], al
+  mov     [newPos + 1], al
 
   ; ask input
   mov     rdi, msgInput
@@ -53,60 +54,85 @@ processMovementGoose:
   je      isS
   cmp     al, [letterD]
   je      isD
-  jmp     verifyValidPosition
+
+  jmp     processMovementGoose
 
 isW:
-  mov     al, [r12 + 1]
+  mov     al, [newPos + 1]
   dec     al
-  mov     [r12 + 1], al
+  mov     [newPos + 1], al
 
-  jmp     verifyValidPosition
+  jmp     verify_position
 
 isA:
-  mov     al, [r12]
+  mov     al, [newPos]
   dec     al
-  mov     [r12], al
+  mov     [newPos], al
 
-  jmp     verifyValidPosition
+  jmp     verify_position
 
 isS:
-  mov     al, [r12 + 1]
+  mov     al, [newPos + 1]
   inc     al
-  mov     [r12 + 1], al
-  
-  jmp     verifyValidPosition
+  mov     [newPos + 1], al
+
+  jmp     verify_position
 
 isD:
-  mov     al, [r12]
+  mov     al, [newPos]
   inc     al
+  mov     [newPos], al
+
+  jmp     verify_position
+
+verify_position:
+  ; if new position is out of bounds it's invalid
+  cmp     byte[newPos], 0
+  jle     invalid_movement
+  cmp     byte[newPos], 8
+  jge     invalid_movement
+  cmp     byte[newPos + 1], 0
+  jle     invalid_movement
+  cmp     byte[newPos + 1], 8
+  jge     invalid_movement
+
+  ; check collisions with walls
+  mov     r8, newPos
+  mov     r9, posWalls
+  mov     r10, 12
+  sub     rsp, 8
+  call    checkCollisions
+  add     rsp, 8
+  cmp     r11, 1
+  je      invalid_movement
+
+  ; check collisions with other geese
+  mov     r8, newPos
+  mov     r9, r13
+  mov     r10, 17
+  sub     rsp, 8
+  call    checkCollisions
+  add     rsp, 8
+  cmp     r11, 1
+  je      invalid_movement
+
+  ; check collisions with the fox
+  mov     r8, newPos
+  mov     r9, r14
+  mov     r10, 1
+  sub     rsp, 8
+  call    checkCollisions
+  add     rsp, 8
+  cmp     r11, 1
+  je      invalid_movement
+
+  ; apply new movement
+  mov     al, [newPos]
   mov     [r12], al
-
-  jmp     verifyValidPosition
-
-verifyValidPosition:
-  mov     rax, r12        ; save new goose position
-  mov     rbx, posBoard   ; load posBoard base address
-  mov     rcx, 36         ; amount of posBoard elements
-
-compare_loop:
-  mov     dl, [rbx]       ; posBoard x
-  mov     dh, [rbx + 1]   ; posBoard y
-  cmp     dl, [rax]       ; compare with goose x
-  jne     next
-  cmp     dh, [rax + 1]   ; compare with goose y
-  jne     next
-
-  jmp     end_compare  ; it matches, its a board position
-
-next:
-  add     rbx, 2          ; next board pos
-  loop    compare_loop
-
-  ; no one matches, return to original position
-  mov     al, [posOriginalGoose]
-  mov     [r12], al
-  mov     al, [posOriginalGoose + 1]
+  mov     al, [newPos + 1]
   mov     [r12 + 1], al
 
-end_compare:
   ret
+
+invalid_movement:
+  jmp     processMovementGoose

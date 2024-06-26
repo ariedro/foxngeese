@@ -52,6 +52,8 @@ geese_turn:
   add     al,al
   add     rcx,rax
   mov     r12,rcx
+  mov     r13,posGeese
+  mov     r14,posFox
   sub     rsp,8
   call    processMovementGoose
   add     rsp,8
