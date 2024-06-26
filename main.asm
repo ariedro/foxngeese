@@ -1,4 +1,5 @@
 global main
+extern gameOver
 extern printBoard
 extern processMovementFox
 extern processMovementGoose
@@ -10,14 +11,11 @@ section .data
   turn              db  1 ; 1 - fox, 2 - geese
   selectedGoose     db  3
   selectingGoose    db  0 ; 0 - no, 1 - yes
+  eatenGeese        db  0
 
 section .bss
 section .text
 main:
-  push    rbp
-  mov     rbp, rsp
-  sub     rsp, 16
-
 main_loop:
   mov     r8, posFox
   mov     r9, posGeese
@@ -25,7 +23,9 @@ main_loop:
   mov     r12b,[selectedGoose]
   mov     r13,0
   mov     r13b,[selectingGoose]
+  sub     rsp,8
   call    printBoard
+  add     rsp,8
 
   ; check turn
   mov     rax, 0
@@ -34,7 +34,9 @@ main_loop:
   je      fox_turn
 
 geese_turn:
+  sub     rsp,8
   call    selectGoose
+  add     rsp,8
   mov     [selectingGoose],al
   mov     [selectedGoose],bl
 
@@ -50,7 +52,9 @@ geese_turn:
   add     al,al
   add     rcx,rax
   mov     r12,rcx
+  sub     rsp,8
   call    processMovementGoose
+  add     rsp,8
 
   ; else its fox turn
   mov     al,[turn]
@@ -67,11 +71,21 @@ fox_turn:
   ; call fox movement process
   mov     r12, posFox
   mov     r13, posGeese
+  mov     r14, eatenGeese
+  sub     rsp,8
   call    processMovementFox
+  add     rsp,8
 
   mov     al, 1
   mov     [selectingGoose],al
 
-  jmp     main_loop
+ ; check if game is over
+ cmp     byte[eatenGeese],12
+ jl      main_loop
 
-  ret
+ mov     r12,1
+ sub     rsp,8
+ call    gameOver
+ add     rsp,8
+
+ ret

@@ -38,6 +38,7 @@ processMovementFox:
   ; input:
   ; r12 -> posFox
   ; r13 -> posGeese
+  ; r14 -> eatenGeese
 
   mov     rdi,msgInChar
   mPuts
@@ -333,6 +334,9 @@ eat_goose:
   ; reeplace the goose cordinates with 0,0
   mov     byte [rdi], 0 
   mov     byte [rdi + 1], 0
+
+  ; update eaten geese counter
+  add     byte[r14],1
 
 endComparison:
   ret
