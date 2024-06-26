@@ -27,7 +27,7 @@ section .bss
 section .text
 selectGoose:
   ; input:
-  ; r12 -> selectedGoose
+  ; r14 -> posGeese
 
   mov     byte[selectingGoose],1
   mov     [selectedGoose],r12b
@@ -49,18 +49,34 @@ selectGoose:
   jmp     exit
 
 isA:
-  ; check if it is out of bounds
-  cmp     byte[selectedGoose],1
+  ; search first goose to the left that is alive
+  movzx   rax, byte[selectedGoose]
+  left_loop:
+  sub     al, 1
+  ; check if it is out of bounds 
+  cmp     al,0
   je      exit
-  ; sub 1 to selected goose index
-  sub     byte[selectedGoose],1
+  mov     bl, byte[r14 + (2 * (rax - 1))]
+  ; if its not alive then search the next one to the left
+  cmp     bl, 0
+  je      left_loop
+  ; update selected goose index
+  mov     byte[selectedGoose],al
   jmp     exit
 isD:
-  ; check if it is out of bounds
-  cmp     byte[selectedGoose],16
-  jg      exit
-  ; add 1 to selected goose index
-  add     byte[selectedGoose],1
+  ; search first goose to the right that is alive
+  movzx   rax, byte[selectedGoose]
+  right_loop:
+  add     al, 1
+  ; check if it is out of bounds 
+  cmp     al,18
+  je      exit
+  mov     bl, byte[r14 + (2 * (rax - 1))]
+  ; if its not alive then search the next one to the right
+  cmp     bl, 0
+  je      right_loop
+  ; update selected goose index
+  mov     byte[selectedGoose],al
   jmp     exit
 
 isEnter:
