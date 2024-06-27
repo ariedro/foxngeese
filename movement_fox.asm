@@ -338,5 +338,8 @@ eat_goose:
   ; update eaten geese counter
   add     byte[r14],1
 
+  mov     al,1
+  mov     [r15],al
+
 endComparison:
   ret

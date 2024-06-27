@@ -86,6 +86,7 @@ fox_turn:
   mov     r12, posFox
   mov     r13, posGeese
   mov     r14, eatenGeese
+  mov     r15, turn
   sub     rsp,8
   call    processMovementFox
   add     rsp,8
