@@ -1,4 +1,5 @@
 global main
+extern checkBlockedFox
 extern gameOver
 extern printBoard
 extern processMovementFox
@@ -61,15 +62,24 @@ geese_turn:
   add     rsp,8
 
   ; else its fox turn
-  mov     al,[turn]
-  dec     al
+  mov     al,1
   mov     [turn],al
 
-  jmp     main_loop
+  ; check if game is over
+  mov     r12,posGeese
+  mov     r13,posFox
+  sub     rsp,8
+  call    checkBlockedFox
+  add     rsp,8
+  cmp     r14,0
+  je      main_loop
+
+  mov     r12,2
+  jmp     game_over
 
 fox_turn:
   ; update next turn
-  inc     al
+  mov     al,2
   mov     [turn],al
 
   ; call fox movement process
@@ -95,6 +105,8 @@ fox_turn:
  jl      main_loop
 
  mov     r12,1
+ 
+game_over:
  sub     rsp,8
  call    gameOver
  add     rsp,8

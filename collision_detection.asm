@@ -8,7 +8,7 @@ checkCollisions:
   ; r10 -> blocks amount
 
   ; output:
-  ; r11 -> 0 - no collision, 1 - colission
+  ; r11 -> collisions amount
 
   mov     r11, 0
   mov     rcx, r10
@@ -28,8 +28,7 @@ compare_block_loop:
   jne     next_block
 
   ; is block, can't move
-  mov     r11,1
-  jmp     end
+  add     r11,1
 
 next_block:
   add     rsi, 2

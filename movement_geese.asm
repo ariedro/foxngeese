@@ -20,6 +20,7 @@ section .data
   letterA           db "a", 0
   letterS           db "s", 0
   letterD           db "d", 0
+  letterEnter       db 0
   posWalls          db 2,1, 6,1, 2,2, 6,2, 1,2, 7,2, 1,6, 2,6, 6,6, 7,6, 2,7, 6,7
 
 section .bss
@@ -31,6 +32,7 @@ processMovementGoose:
   ; input:
   ; r12 -> posGoose
   ; r13 -> posGeese
+  ; r14 -> posFox
 
   ; parse param
   mov     al, byte [r12]
@@ -54,6 +56,8 @@ processMovementGoose:
   je      isS
   cmp     al, [letterD]
   je      isD
+  cmp     al, [letterEnter]
+  je      isEnter
 
   jmp     processMovementGoose
 
@@ -85,6 +89,9 @@ isD:
 
   jmp     verify_position
 
+isEnter:
+  jmp     end_movement
+
 verify_position:
   ; if new position is out of bounds it's invalid
   cmp     byte[newPos], 0
@@ -103,8 +110,8 @@ verify_position:
   sub     rsp, 8
   call    checkCollisions
   add     rsp, 8
-  cmp     r11, 1
-  je      invalid_movement
+  cmp     r11, 0
+  jg      invalid_movement
 
   ; check collisions with other geese
   mov     r8, newPos
@@ -113,8 +120,8 @@ verify_position:
   sub     rsp, 8
   call    checkCollisions
   add     rsp, 8
-  cmp     r11, 1
-  je      invalid_movement
+  cmp     r11, 0
+  jg      invalid_movement
 
   ; check collisions with the fox
   mov     r8, newPos
@@ -123,8 +130,8 @@ verify_position:
   sub     rsp, 8
   call    checkCollisions
   add     rsp, 8
-  cmp     r11, 1
-  je      invalid_movement
+  cmp     r11, 0
+  jg      invalid_movement
 
   ; apply new movement
   mov     al, [newPos]
@@ -132,6 +139,9 @@ verify_position:
   mov     al, [newPos + 1]
   mov     [r12 + 1], al
 
+  ret
+
+end_movement:
   ret
 
 invalid_movement:
