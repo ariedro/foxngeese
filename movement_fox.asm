@@ -24,7 +24,7 @@ section .data
   numGeese        equ 17 ; numbers of pairs of posGeese
   numBoard        equ 33 ; numbers of pairs of posBoard
   posFoxAux       db  0,0
-  msgInChar       db  "[FOX'S TURN]",10,"Insert a character: ",0
+  msgInChar       db  "[FOX'S TURN]",10,"Insert a character (send W, A, S, D, WA, WD, SA, SD or Enter)",0
 
 section .bss
   posFoxOriginal  resb 2

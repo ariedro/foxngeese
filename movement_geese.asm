@@ -15,7 +15,7 @@ extern gets
 %endmacro
 
 section .data
-  msgInput          db  "[GEESE'S TURN]",10,"Insert a character (send W, A, S or D)",0
+  msgInput          db  "[GEESE'S TURN]",10,"Insert a character (send W, A, S, D or Enter)",0
   letterW           db "w", 0
   letterA           db "a", 0
   letterS           db "s", 0
