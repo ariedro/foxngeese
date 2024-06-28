@@ -91,10 +91,6 @@ geese_turn:
   jmp     game_over
 
 fox_turn:
-  ; update next turn
-  mov     al,2
-  mov     [turn],al
-
   ; call fox movement process
   mov     r12, posFox
   mov     r13, posGeese
@@ -104,9 +100,17 @@ fox_turn:
   call    processMovementFox
   add     rsp,8
 
+  ; if a goose has been eaten
+  cmp     r15, 1
+  je      main_loop
+
   ; if there has been an interruption request
   cmp     r11,1
   je      program_interruption
+
+  ; update next turn
+  mov     al,2
+  mov     [turn],al
 
 reset_goose_selection:
   ; reset the geese selection state

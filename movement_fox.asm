@@ -56,6 +56,7 @@ processMovementFox:
   mov     byte [r13+1], 0
   mov     byte [result], 0
   mov     r11, 0
+  mov     r15, 0
 
   mov     al, byte [r8]
   mov     [posFoxOriginal], al
@@ -348,11 +349,12 @@ eat_goose:
   ; update eaten geese counter
   add     byte[r14],1
 
-  mov     al,1
-  mov     [r15],al
+  ; set goose eaten flag
+  mov     r15,1
 
 endComparison:
   ; output:
   ; r11 -> interruption flag
+  ; r15 -> goose eaten flag
 
   ret
