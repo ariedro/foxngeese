@@ -66,6 +66,10 @@ geese_turn:
   call    processMovementGoose
   add     rsp,8
 
+  ; if there has been a goose selection
+  cmp     r10, 1
+  je      reset_goose_selection
+
   ; if there has been an interruption request
   cmp     r11,1
   je      program_interruption
@@ -104,6 +108,7 @@ fox_turn:
   cmp     r11,1
   je      program_interruption
 
+reset_goose_selection:
   ; reset the geese selection state
   mov     r12,selectedGoose
   mov     r13,posGeese
