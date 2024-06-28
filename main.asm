@@ -1,6 +1,7 @@
 global main
 extern checkBlockedFox
 extern gameOver
+extern interruption
 extern printBoard
 extern processMovementFox
 extern processMovementGoose
@@ -43,6 +44,10 @@ geese_turn:
   mov     [selectingGoose],al
   mov     [selectedGoose],bl
 
+  ; if there has been an interruption request
+  cmp     r11,1
+  je      program_interruption
+
   ; if keeps selecting the turns continue
   cmp     al,1
   je      main_loop
@@ -60,6 +65,10 @@ geese_turn:
   sub     rsp,8
   call    processMovementGoose
   add     rsp,8
+
+  ; if there has been an interruption request
+  cmp     r11,1
+  je      program_interruption
 
   ; else its fox turn
   mov     al,1
@@ -91,6 +100,10 @@ fox_turn:
   call    processMovementFox
   add     rsp,8
 
+  ; if there has been an interruption request
+  cmp     r11,1
+  je      program_interruption
+
   ; reset the geese selection state
   mov     r12,selectedGoose
   mov     r13,posGeese
@@ -101,15 +114,27 @@ fox_turn:
   mov     al, 1
   mov     [selectingGoose],al
 
- ; check if game is over
- cmp     byte[eatenGeese],12
- jl      main_loop
+  ; check if game is over
+  cmp     byte[eatenGeese],12
+  jl      main_loop
 
- mov     r12,1
- 
+  mov     r12,1
+  jmp     game_over
+
+program_interruption:
+  sub     rsp,8
+  call    interruption
+  add     rsp,8
+
+  ; if exit confirmation
+  cmp     r11,1
+  jne     main_loop
+
+  ret
+
 game_over:
- sub     rsp,8
- call    gameOver
- add     rsp,8
+  sub     rsp,8
+  call    gameOver
+  add     rsp,8
 
- ret
+  ret

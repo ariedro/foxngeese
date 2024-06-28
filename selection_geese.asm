@@ -14,9 +14,10 @@ extern gets
 %endmacro
 
 section .data
-  msgInput        db  "[GEESE'S TURN]",10,"Select a goose (send  A, D or enter)",0
+  msgInput        db  "[GEESE'S TURN]",10,"Select a goose (send  A, D to change goose, Enter to select or Q to quit)",0
   letterA         db "a"
   letterD         db "d"
+  letterQ         db "q"
   letterEnter     db 0
   selectingGoose  db 1
 
@@ -39,11 +40,15 @@ selectGoose:
   mGets
   mov     al,byte [keyboardInput]
 
+  mov     r11, 0
+
   ; parse input
   cmp     al, [letterA]
   je      isA
   cmp     al, [letterD]
   je      isD
+  cmp     al, [letterQ]
+  je      isQ
   cmp     al, [letterEnter]
   je      isEnter
   jmp     exit
@@ -77,6 +82,10 @@ isD:
   je      right_loop
   ; update selected goose index
   mov     byte[selectedGoose],al
+  jmp     exit
+
+isQ:
+  mov     r11, 1
   jmp     exit
 
 isEnter:

@@ -20,11 +20,12 @@ section .data
   letterA         db "a", 0
   letterS         db "s", 0
   letterD         db "d", 0
+  letterQ         db "q", 0
   posBoard        db  3,1,  4,1,  5,1,  3,2,  4,2,  5,2,  1,3,  2,3,  3,3,  4,3,  5,3,  6,3,  7,3,  1,4,  2,4,  3,4,  4,4,  5,4,  6,4,  7,4,  1,5,  2,5,  3,5,  4,5,  5,5,  6,5,  7,5, 3,6,  4,6,  5,6, 3,7,  4,7,  5,7
   numGeese        equ 17 ; numbers of pairs of posGeese
   numBoard        equ 33 ; numbers of pairs of posBoard
   posFoxAux       db  0,0
-  msgInChar       db  "[FOX'S TURN]",10,"Insert a character (send W, A, S, D, WA, WD, SA, SD or Enter)",0
+  msgInChar       db  "[FOX'S TURN]",10,"Insert a character (send W, A, S, D, WA, WD, SA, SD to move, Enter to skip or Q to quit)",0
 
 section .bss
   posFoxOriginal  resb 2
@@ -54,6 +55,7 @@ processMovementFox:
   mov     byte [r13], 0
   mov     byte [r13+1], 0
   mov     byte [result], 0
+  mov     r11, 0
 
   mov     al, byte [r8]
   mov     [posFoxOriginal], al
@@ -98,6 +100,9 @@ compareIndividual:
 
   cmp     bl, [letterD]
   je      isD
+
+  cmp     bl, [letterQ]
+  je      isQ
 
   jmp     verifyGooseEaten
 
@@ -213,6 +218,10 @@ isD:
 
   jmp     verifyGooseEaten
 
+isQ:
+  mov     r11, 1
+  jmp     endComparison
+
 verifyGooseEaten:
   mov     rax, r8             ; save the new fox position
   mov     rbx, r9             ; load the base address of posGeese
@@ -252,6 +261,7 @@ pos_goose_equal:
 
   mov     r11, 1
   mov     [result], r11
+  mov     r11, 0
   mov     r12, r10
   mov     [gooseIndex], r12
 
@@ -342,4 +352,7 @@ eat_goose:
   mov     [r15],al
 
 endComparison:
+  ; output:
+  ; r11 -> interruption flag
+
   ret

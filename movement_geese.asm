@@ -15,10 +15,11 @@ extern gets
 %endmacro
 
 section .data
-  msgInput          db  "[GEESE'S TURN]",10,"Insert a character (send A, S, D or Enter)",0
+  msgInput          db  "[GEESE'S TURN]",10,"Insert a character (send A, S, D to move, Enter to skip or Q to quit)",0
   letterA           db "a", 0
   letterS           db "s", 0
   letterD           db "d", 0
+  letterQ           db "q", 0
   letterEnter       db 0
   posWalls          db 2,1, 6,1, 2,2, 6,2, 1,2, 7,2, 1,6, 2,6, 6,6, 7,6, 2,7, 6,7
 
@@ -46,6 +47,8 @@ processMovementGoose:
   mGets
   mov     al, byte[keyboardInput]
 
+  mov     r11, 0
+
   ; parse input
   cmp     al, [letterA]
   je      isA
@@ -53,6 +56,8 @@ processMovementGoose:
   je      isS
   cmp     al, [letterD]
   je      isD
+  cmp     al, [letterQ]
+  je      isQ
   cmp     al, [letterEnter]
   je      isEnter
 
@@ -78,6 +83,10 @@ isD:
   mov     [newPos], al
 
   jmp     verify_position
+
+isQ:
+  mov     r11, 1
+  jmp     end_movement
 
 isEnter:
   jmp     end_movement
@@ -132,6 +141,9 @@ verify_position:
   ret
 
 end_movement:
+  ; output:
+  ; r11 -> interruption flag
+
   ret
 
 invalid_movement:
