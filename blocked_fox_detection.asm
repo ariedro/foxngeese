@@ -51,7 +51,7 @@ checkBlockedFox:
   ; check collisions with walls
   mov     r8, posCurrent
   mov     r9, posWalls
-  mov     r10, 12
+  mov     r10, 16
   sub     rsp, 8
   call    checkCollisions
   add     rsp, 8
