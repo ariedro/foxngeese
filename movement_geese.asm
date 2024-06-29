@@ -15,7 +15,9 @@ extern gets
 %endmacro
 
 section .data
-  msgInput          db  "[GEESE'S TURN]",10,"Insert a character (send A, S, D to move, R to select another goose, Enter to skip or Q to quit)",0
+  msgTurn           db  "[GEESE'S TURN]",0
+  msgInput          db  "Insert a character (send A, S, D to move, R to select another goose, Enter to skip or Q to quit)",0
+  msgInvalid        db  "Invalid direction!",0
   letterA           db "a", 0
   letterS           db "s", 0
   letterD           db "d", 0
@@ -35,6 +37,10 @@ processMovementGoose:
   ; r13 -> posGeese
   ; r14 -> posFox
 
+  mov     rdi,msgTurn
+  mPuts
+
+inputChar:
   ; parse param
   mov     al, byte [r12]
   mov     [newPos], al
@@ -65,7 +71,7 @@ processMovementGoose:
   cmp     al, [letterEnter]
   je      isEnter
 
-  jmp     processMovementGoose
+  jmp     inputChar
 
 isA:
   mov     al, [newPos]
@@ -158,4 +164,6 @@ end_movement:
   ret
 
 invalid_movement:
-  jmp     processMovementGoose
+  mov     rdi, msgInvalid
+  mPuts
+  jmp     inputChar

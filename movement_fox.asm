@@ -25,7 +25,9 @@ section .data
   numGeese        equ 17 ; numbers of pairs of posGeese
   numBoard        equ 33 ; numbers of pairs of posBoard
   posFoxAux       db  0,0
-  msgInChar       db  "[FOX'S TURN]",10,"Insert a character (send W, A, S, D, WA, WD, SA, SD to move, Enter to skip or Q to quit)",0
+  msgTurn         db  "[FOX'S TURN]",0
+  msgInChar       db  "Insert a character (send W, A, S, D, WA, WD, SA, SD to move, Enter to skip or Q to quit)",0
+  msgInvalid      db  "Invalid direction!",0
 
 section .bss
   posFoxOriginal  resb 2
@@ -41,6 +43,9 @@ processMovementFox:
   ; r13 -> posGeese
   ; r14 -> eatenGeese
 
+  mov     rdi,msgTurn
+  mPuts
+inputChar:
   mov     rdi,msgInChar
   mPuts
   mov     rdi,keyInput
@@ -284,20 +289,12 @@ verify_geese_loop:
   cmp     dh, [rax + 1]       ; compare with fox y
   jne     next_goose_compare
 
-  jmp     equals_on_compare   ; matches posGeese and posFox
+  jmp     return_original_position   ; matches posGeese and posFox
 
 next_goose_compare:
   add     rbx, 2              ; next goose
   inc     r10
   jmp     verify_geese_loop
-
-equals_on_compare:
-  mov     al, [posFoxOriginal]
-  mov     [r8], al
-  mov     al, [posFoxOriginal + 1]
-  mov     [r8 + 1], al
-  mov     byte [result], 0
-
 
 verifyValidPositionBoard:
   mov     rax, r8            ; save the new fox position
@@ -331,6 +328,14 @@ return_original_position:
   mov     [r8 + 1], al
   mov     byte [result], 0
 
+  mov     rdi,msgInvalid
+  mPuts
+
+  mov     r12,r8
+  mov     r13,r9
+
+  jmp     inputChar
+
 eat_goose:
   cmp     byte [result], 1
   jne     endComparison
@@ -339,7 +344,7 @@ eat_goose:
 
   ; calculate the memory address of the coordinates of the goose
   mov     r13, r12        ; r13 -> goose index
-  shl     r13, 1          ; multiply by 2 to get the offset
+  lea     r13, [r12 * 2]  ; multiply by 2 to get the offset
   lea     rdi, [r9 + r13] ; set it in rdi
 
   ; reeplace the goose cordinates with 0,0
